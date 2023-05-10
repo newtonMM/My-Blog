@@ -6,7 +6,7 @@ const router = (0, express_1.Router)();
 router.post("/signup", user_1.signup);
 router.post("/login", user_1.login);
 router.put("/update-details/:userId", user_1.update);
-router.delete("/delete/:id", user_1.deleteUser);
+router.delete("/delete-user/:id", user_1.deleteUser);
 router.get("/all-users", user_1.findAllUsers);
 router.get("/get-user/:id", user_1.findUser);
 exports.default = router;

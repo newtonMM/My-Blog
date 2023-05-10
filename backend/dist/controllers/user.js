@@ -98,9 +98,6 @@ exports.login = login;
 const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { first_name, last_name, email, username, cover_image_url, profile_image_url, } = req.body;
     const { userId } = req.params;
-    console.log("we are getting here");
-    console.log(userId);
-    console.log(req.body, "and", cover_image_url);
     try {
         const updatedDetails = {
             last_name,
@@ -112,9 +109,11 @@ const update = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         };
         const updateResults = (yield user_1.User.updateUserDetails(updatedDetails, userId));
         if (updateResults.failed || !updateResults) {
+            console.log(updateResults);
             const error = new Error("updated failed");
             throw error;
         }
+        console.log(updateResults);
         res.status(200).json({ message: "Updated user successfully" });
     }
     catch (error) {
@@ -141,6 +140,10 @@ exports.deleteUser = deleteUser;
 const findAllUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = (yield user_1.User.findAll());
+        if (response.failed || !response.rows) {
+            const error = new Error("could not fetch users");
+            throw error;
+        }
         res
             .status(200)
             .json({ message: "found all users", response: response.rows });
@@ -154,6 +157,10 @@ const findUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     const { id } = req.params;
     try {
         const response = (yield user_1.User.findByID(id));
+        if (response.failed || !response.rows) {
+            const error = new Error("could not delete");
+            throw error;
+        }
         res.status(200).json({ message: "found user", data: response.rows });
     }
     catch (error) {

@@ -38,11 +38,18 @@ class User {
                         if (err) {
                             reject(err);
                         }
-                        const profileQuery = `INSERT INTO user_profile (id, first_name, last_name, email, cover_image, profile_image, created_at, updated_at) VALUES ('${this.id}', '${this.first_name}', '${this.last_name}', '${this.email}', '${this.cover_image_url}', '${this.profile_image_url}', NOW(), NOW())`;
+                        const profileQuery = `INSERT INTO user_profile (id, first_name, last_name, email, cover_image, profile_image, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`;
                         console.log(profileQuery);
                         const credentialsQuery = `INSERT INTO user_credentials (user_id, username, password) VALUES (?, ?, ?)`;
                         console.log(credentialsQuery);
-                        connection.query(profileQuery, (error, results, fields) => {
+                        connection.query(profileQuery, [
+                            this.id,
+                            this.first_name,
+                            this.last_name,
+                            this.email,
+                            this.cover_image_url,
+                            this.profile_image_url,
+                        ], (error, results, fields) => {
                             if (error) {
                                 connection.rollback(() => {
                                     console.log("Transaction rollbacked !!!!");
@@ -82,8 +89,9 @@ class User {
     }
     static findUserByUserName(username) {
         const query = `SELECT * FROM user_credentials WHERE username = "${username}"`;
+        var values;
         return new Promise((resolve, reject) => {
-            db_config_1.default.query(query, (err, results) => {
+            db_config_1.default.query(query, values, (err, results) => {
                 if (err) {
                     reject(err);
                     return;
@@ -97,26 +105,36 @@ _a = User;
 User.updateUserDetails = (userDetails, id) => __awaiter(void 0, void 0, void 0, function* () {
     const { first_name, last_name, email, username, cover_image_url, profile_image_url, } = userDetails;
     var query;
+    var values;
     if (cover_image_url === undefined && profile_image_url === undefined) {
-        query = `UPDATE user_profile SET first_name = '${first_name}', last_name='${last_name}', email='${email}' WHERE id="${id}" `;
+        query = `UPDATE user_profile SET first_name = ?, last_name= ?, email= ?  WHERE id="${id}" `;
+        values = [first_name, last_name, email];
     }
     if (profile_image_url !== undefined && cover_image_url === undefined) {
-        query = `UPDATE user_profile SET first_name = '${first_name}', last_name='${last_name}', email='${email}', profile_image ="${profile_image_url}" WHERE id="${id}" `;
+        query = `UPDATE user_profile SET first_name = ?, last_name= ?, email= ? , profile_image = ? WHERE id="${id}" `;
+        values = [first_name, last_name, email, profile_image_url];
     }
     if (cover_image_url !== undefined && profile_image_url === undefined) {
-        query = `UPDATE user_profile SET first_name = '${first_name}', last_name='${last_name}', email='${email}', cover_image ="${cover_image_url}" WHERE id="${id}" `;
+        query = `UPDATE user_profile SET first_name = ?, last_name= ?, email= ? , cover_image = ? WHERE id="${id}" `;
+        values = [first_name, last_name, email, cover_image_url];
     }
     if (cover_image_url !== undefined && profile_image_url !== undefined) {
-        query = `UPDATE user_profile SET first_name = '${first_name}', last_name='${last_name}', email='${email}', profile_image ="${profile_image_url}", cover_image ="${cover_image_url}" WHERE id="${id}" `;
+        query = `UPDATE user_profile SET first_name = ?, last_name= ?, email= ? , profile_image = ?, cover_image = ? WHERE id="${id}" `;
+        values = [
+            first_name,
+            last_name,
+            email,
+            profile_image_url,
+            cover_image_url,
+        ];
     }
     return new Promise((resolve, reject) => {
         console.log(query);
-        db_config_1.default.query(query, (err, results) => {
+        db_config_1.default.query(query, values, (err, results) => {
             if (err) {
                 reject(err);
                 return;
             }
-            console.log(results);
             resolve(results);
         });
     }).catch((err) => {
@@ -126,9 +144,10 @@ User.updateUserDetails = (userDetails, id) => __awaiter(void 0, void 0, void 0, 
 });
 User.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
     const query = `SELECT * FROM user_profile`;
+    var values;
     return new Promise((resolve, reject) => {
         console.log(query);
-        db_config_1.default.query(query, (err, results) => {
+        db_config_1.default.query(query, values, (err, results) => {
             if (err) {
                 reject(err);
                 return;
@@ -142,9 +161,10 @@ User.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 User.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const query = `SELECT * FROM user_profile WHERE id="${id}"`;
+    var values;
     return new Promise((resolve, reject) => {
         console.log(query);
-        db_config_1.default.query(query, (err, results) => {
+        db_config_1.default.query(query, values, (err, results) => {
             if (err) {
                 reject(err);
                 return;
@@ -159,8 +179,9 @@ User.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
 User.deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const query = `DELETE FROM user_profile 
     WHERE id = "${id}"`;
+    var values;
     return new Promise((resolve, reject) => {
-        db_config_1.default.query(query, (err, results) => {
+        db_config_1.default.query(query, values, (err, results) => {
             if (err) {
                 reject(err);
                 return;

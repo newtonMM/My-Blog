@@ -121,9 +121,6 @@ export const update = async (
     profile_image_url,
   } = req.body;
   const { userId } = req.params;
-  console.log("we are getting here");
-  console.log(userId);
-  console.log(req.body, "and", cover_image_url);
 
   try {
     const updatedDetails = {
@@ -139,9 +136,11 @@ export const update = async (
       userId
     )) as DBResponse;
     if (updateResults.failed || !updateResults) {
+      console.log(updateResults);
       const error = new Error("updated failed");
       throw error;
     }
+    console.log(updateResults);
 
     res.status(200).json({ message: "Updated user successfully" });
   } catch (error) {

@@ -62,14 +62,14 @@ class DBConnection {
             return;
         });
     }
-    query(query, callback) {
+    query(query, values, callback) {
         this.db.getConnection(function (err, connection) {
             if (err) {
                 console.log(err);
                 connection.release();
                 throw err;
             }
-            connection.query(query, function (err, rows) {
+            connection.query(query, values, function (err, rows) {
                 connection.release();
                 if (err) {
                     callback(err, { rows: rows });
