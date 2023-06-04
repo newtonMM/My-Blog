@@ -21,7 +21,7 @@ const saveArticle = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const newArticle = (yield article.save());
         if (newArticle.failed || newArticle.rows.affectedRows === 0) {
             console.log(newArticle);
-            const error = new Error("an error occured, could not save");
+            const error = { code: 200, message: "failed" };
             throw error;
         }
         res
@@ -29,7 +29,7 @@ const saveArticle = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             .json({ message: "saved article successfully ", newArticle });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.saveArticle = saveArticle;
@@ -49,10 +49,10 @@ const updateArticle = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             throw error;
         }
         console.log(updateResponse);
-        res.status(200).json({ message: "Articles  updated" });
+        res.status(200).json({ message: "Articles  updated", updateResponse });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.updateArticle = updateArticle;
@@ -60,7 +60,7 @@ const findAllArticles = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     try {
         const response = (yield articles_1.Articles.findAll());
         if (response.failed) {
-            const error = new Error("could not fetch articles");
+            const error = new Error();
             throw error;
         }
         res
@@ -68,7 +68,7 @@ const findAllArticles = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             .json({ message: "found all articles", response: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findAllArticles = findAllArticles;
@@ -84,7 +84,7 @@ const deleteArticle = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(200).json({ message: "Articles deleted successdully" });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.deleteArticle = deleteArticle;
@@ -99,7 +99,7 @@ const findArticle = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.status(200).json({ message: "found article", data: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findArticle = findArticle;

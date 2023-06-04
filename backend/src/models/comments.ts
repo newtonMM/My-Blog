@@ -1,63 +1,44 @@
-import { rejects } from "assert";
 import sql from "../config/db-config";
-import { resolve } from "path";
-import { error } from "console";
 
-interface ISeriesDetails {
-  id: string;
-  name: string;
-  description: string;
+interface ICommentsDetails {
+  id: number;
+  comment: string;
 }
 
-export class Series {
-  id: string;
-  name: string;
-  description: string;
+export class Comments {
+  comment: string;
+  article_id: string;
+  user_prof_id: string;
 
-  constructor(id: string, name: string, description: string) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
+  constructor(comment: string, article_id: string, user_prof_id: string) {
+    this.comment = comment;
+    this.article_id = article_id;
+    this.user_prof_id = user_prof_id;
   }
 
   async save() {
-    const query = `INSERT INTO series (id, name, description) VALUES (?,?,?) `;
-    const values = [this.id, this.name, this.description];
-
+    const query =
+      "INSERT INTO comments (comment, article_id,user_prof_id) VALUES (?,?,?)";
     return new Promise(async (resolve, reject) => {
-      sql.query(query, values, (err, results) => {
-        if (err) {
-          reject(err);
-          return;
+      sql.query(
+        query,
+        [this.comment, this.article_id, this.user_prof_id],
+        (err, results) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(results);
         }
-        resolve(results);
-      });
+      );
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
       throw error;
     });
   }
 
-  static async update(params: ISeriesDetails) {
-    const { name, description, id } = params;
-
-    const query = `UPDATE series SET  name = ?, description =? WHERE id="${id}"`;
-    return new Promise(async (resolve, reject) => {
-      sql.query(query, [name, description], (err, results) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(results);
-      });
-    }).catch((err) => {
-      const error = { code: err.code, failed: true, message: err.sqlMessage };
-      throw error;
-    });
-  }
-
-  static deleteSeries = async (id: string) => {
-    const query = `DELETE FROM series 
+  static async delete(id: number) {
+    const query = `DELETE FROM comments 
     WHERE id = "${id}"`;
     var values: Array<string>;
     return new Promise((resolve, reject) => {
@@ -72,10 +53,9 @@ export class Series {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
       throw error;
     });
-  };
-
-  static findAll = async () => {
-    const query = `SELECT * FROM series`;
+  }
+  static async findAll(article_id: string) {
+    const query = `SELECT * FROM comments WHERE article_id = "${article_id}"`;
     var values: Array<string>;
     return new Promise((resolve, reject) => {
       console.log(query);
@@ -91,10 +71,9 @@ export class Series {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
       throw error;
     });
-  };
-
-  static findByID = async (id: string) => {
-    const query = `SELECT * FROM series WHERE id="${id}"`;
+  }
+  static async findOne(id: number) {
+    const query = `SELECT * FROM comments WHERE id="${id}"`;
     var values: Array<string>;
     return new Promise((resolve, reject) => {
       console.log(query);
@@ -110,5 +89,22 @@ export class Series {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
       throw error;
     });
-  };
+  }
+  static async update(params: ICommentsDetails) {
+    const { comment, id } = params;
+
+    const query = `UPDATE comments SET  comment = ? WHERE id=${id}`;
+    return new Promise(async (resolve, reject) => {
+      sql.query(query, [comment], (err, results) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(results);
+      });
+    }).catch((err) => {
+      const error = { code: err.code, failed: true, message: err.sqlMessage };
+      throw error;
+    });
+  }
 }

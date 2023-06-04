@@ -1,12 +1,11 @@
-import { error } from "console";
 import sql from ".././config/db-config";
-import { Query } from "mysql2";
 
 interface UpdatedUserInterface {
   first_name: string;
   last_name: string;
   email: string;
   username: string;
+  hashedPw: string;
   cover_image_url: string | null;
   profile_image_url: string | null;
 }
@@ -73,6 +72,7 @@ export class User {
                   console.log("Transaction rollbacked !!!!");
                   connection.release();
                   reject(error);
+                  return;
                 });
               }
               console.log("this are the results", results);
@@ -86,6 +86,7 @@ export class User {
                       console.log("Transaction rollbacked !!!!");
                       connection.release();
                       reject(error);
+                      return;
                     });
                   }
                   console.log("trying to", results);
@@ -106,8 +107,9 @@ export class User {
           );
         });
       });
-    }).catch((error) => {
-      console.log("this is the error from catch", error);
+    }).catch((err) => {
+      const error = { code: err.code, failed: true, message: err.sqlMessage };
+      throw error;
     });
   }
 
@@ -120,6 +122,7 @@ export class User {
       last_name,
       email,
       username,
+      hashedPw,
       cover_image_url,
       profile_image_url,
     } = userDetails;
@@ -148,19 +151,55 @@ export class User {
         cover_image_url,
       ];
     }
+    var credentialsQuery = `UPDATE user_credentials SET username = ?, password = ? `;
 
     return new Promise((resolve, reject) => {
-      console.log(query);
-      sql.query(query, values, (err, results) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(results);
+      sql.db.getConnection((err, connection) => {
+        connection.beginTransaction((err) => {
+          if (err) {
+            reject(err);
+          }
+          connection.query(query, values, (error, results, fields) => {
+            if (error) {
+              connection.rollback(() => {
+                console.log("Transaction rollbacked on profile details !!!!");
+                connection.release();
+                reject(error);
+              });
+            }
+
+            connection.query(
+              credentialsQuery,
+              [username, hashedPw],
+              (error, results, fields) => {
+                if (error) {
+                  connection.rollback(() => {
+                    console.log(
+                      "Transaction rollbacked on credentials update !!!!"
+                    );
+                    connection.release();
+                    reject(error);
+                  });
+                }
+                connection.commit((error) => {
+                  if (error) {
+                    connection.rollback(() => {
+                      console.log("Transaction rollbacked !!!!");
+                      connection.release();
+                      reject(error);
+                    });
+                  }
+                  connection.release();
+                  resolve({ message: "user updated ok " });
+                });
+              }
+            );
+          });
+        });
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -194,7 +233,7 @@ export class User {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -213,7 +252,7 @@ export class User {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -222,7 +261,7 @@ export class User {
     WHERE id = "${id}"`;
     var values: Array<string>;
     return new Promise((resolve, reject) => {
-      sql.query(query, values, (err, results) => {
+      sql.query(query, null, (err, results) => {
         if (err) {
           reject(err);
           return;
@@ -231,7 +270,26 @@ export class User {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
+
+  static async findUserCredentials(id: string) {
+    const query = `SELECT * FROM user_credentials WHERE user_id="${id}"`;
+    var values: Array<string>;
+    return new Promise((resolve, reject) => {
+      console.log(query);
+      sql.query(query, values, (err, results) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve(results);
+      });
+    }).catch((err) => {
+      const error = { code: err.code, failed: true, message: err.sqlMessage };
+      throw error;
+    });
+  }
 }

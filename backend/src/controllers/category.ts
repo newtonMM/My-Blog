@@ -18,11 +18,11 @@ export const saveCategory = async (
 ) => {
   const { name } = req.body;
 
-  if (!name) {
-    const error = new Error(" entry cannot be empty");
-    throw error;
-  }
   try {
+    if (!name) {
+      const error = new Error(" entry cannot be empty");
+      throw error;
+    }
     console.log(req.body);
     const id = generateId();
 
@@ -40,7 +40,7 @@ export const saveCategory = async (
     }
     res.status(200).json({ message: "saved category successfully " });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -68,7 +68,7 @@ export const updateCategory = async (
     console.log(updateResponse);
     res.status(200).json({ message: "category  updated" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -88,7 +88,7 @@ export const findAllCategories = async (
       .status(200)
       .json({ message: "found all users", response: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -109,7 +109,7 @@ export const deleteCategory = async (
 
     res.status(200).json({ message: "category deleted successdully" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -129,6 +129,6 @@ export const findCategory = async (
 
     res.status(200).json({ message: "found category", data: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };

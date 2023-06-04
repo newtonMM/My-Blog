@@ -44,7 +44,11 @@ class DBConnection {
     });
   }
 
-  query(query: query, values: Array<string | null>, callback: callback) {
+  query(
+    query: query,
+    values: Array<string | number> | null,
+    callback: callback
+  ) {
     this.db.getConnection(function (err, connection) {
       if (err) {
         console.log(err);

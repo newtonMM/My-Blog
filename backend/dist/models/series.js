@@ -35,7 +35,7 @@ class Series {
                 });
             })).catch((err) => {
                 const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                throw error;
             });
         });
     }
@@ -53,7 +53,7 @@ class Series {
                 });
             })).catch((err) => {
                 const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                throw error;
             });
         });
     }
@@ -73,7 +73,7 @@ Series.deleteSeries = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Series.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -90,7 +90,7 @@ Series.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Series.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -107,7 +107,7 @@ Series.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 exports.Series = Series;

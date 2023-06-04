@@ -18,11 +18,11 @@ export const saveSeries = async (
 ) => {
   const { name, description } = req.body;
 
-  if (!name || !description) {
-    const error = new Error(" entry cannot be empty");
-    throw error;
-  }
   try {
+    if (!name || !description) {
+      const error = new Error(" entry cannot be empty");
+      throw error;
+    }
     const id = generateId();
 
     const series = new Series(id, name, description);
@@ -35,7 +35,7 @@ export const saveSeries = async (
     }
     res.status(200).json({ message: "saved series successfully " });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -63,7 +63,7 @@ export const updateSeries = async (
     console.log(updateResponse);
     res.status(200).json({ message: "series  updated" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -83,7 +83,7 @@ export const findAllSeries = async (
       .status(200)
       .json({ message: "found all users", response: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -104,7 +104,7 @@ export const deleteSeries = async (
 
     res.status(200).json({ message: "series deleted successdully" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -124,6 +124,6 @@ export const findSeries = async (
 
     res.status(200).json({ message: "found series", data: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };

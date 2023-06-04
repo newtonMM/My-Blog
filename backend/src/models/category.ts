@@ -28,7 +28,7 @@ export class Category {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   }
 
@@ -46,7 +46,7 @@ export class Category {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   }
 
@@ -64,7 +64,7 @@ export class Category {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -83,7 +83,7 @@ export class Category {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -102,7 +102,7 @@ export class Category {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 }

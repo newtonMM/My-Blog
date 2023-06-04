@@ -13,7 +13,7 @@ interface IArticleUpdateDetails {
   id: string;
   image_url: string;
   content: string;
-  category_id: string | null;
+  category_id: string | number;
   title: string;
 }
 
@@ -46,7 +46,7 @@ export class Articles {
 
   async save() {
     var query: string;
-    var values: Array<string | null>;
+    var values: Array<string | number>;
 
     if (this.series_id) {
       query = `INSERT INTO articles (id, image_url,title, content,category_id,series_id,author_id,date_published,date_updated) VALUES (?,?,?,?,?,?,?,NOw(),NOW())`;
@@ -61,7 +61,7 @@ export class Articles {
       ];
     }
     if (!this.series_id) {
-      query = `INSERT INTO articles (id, image_url,title, content,category_id,author_id) VALUES (?,?,?,?,?,?)`;
+      query = `INSERT INTO articles (id, image_url,title, content,category_id,author_id,date_published,date_updated) VALUES (?,?,?,?,?,?,NOw(),NOW())`;
       values = [
         this.id,
         this.image_url,
@@ -82,7 +82,7 @@ export class Articles {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   }
 
@@ -103,8 +103,8 @@ export class Articles {
         }
       );
     }).catch((err) => {
-      const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      const error = { code: err.code, message: err.sqlMessage };
+      throw error;
     });
   }
 
@@ -122,7 +122,7 @@ export class Articles {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -141,7 +141,7 @@ export class Articles {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 
@@ -160,7 +160,7 @@ export class Articles {
       });
     }).catch((err) => {
       const error = { code: err.code, failed: true, message: err.sqlMessage };
-      return error;
+      throw error;
     });
   };
 }

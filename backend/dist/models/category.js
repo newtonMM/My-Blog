@@ -34,7 +34,7 @@ class Category {
                 });
             })).catch((err) => {
                 const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                throw error;
             });
         });
     }
@@ -52,7 +52,7 @@ class Category {
                 });
             })).catch((err) => {
                 const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                throw error;
             });
         });
     }
@@ -72,7 +72,7 @@ Category.deleteSeries = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Category.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -89,7 +89,7 @@ Category.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Category.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -106,7 +106,7 @@ Category.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 exports.Category = Category;

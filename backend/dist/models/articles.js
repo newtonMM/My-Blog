@@ -42,7 +42,7 @@ class Articles {
                 ];
             }
             if (!this.series_id) {
-                query = `INSERT INTO articles (id, image_url,title, content,category_id,author_id) VALUES (?,?,?,?,?,?)`;
+                query = `INSERT INTO articles (id, image_url,title, content,category_id,author_id,date_published,date_updated) VALUES (?,?,?,?,?,?,NOw(),NOW())`;
                 values = [
                     this.id,
                     this.image_url,
@@ -62,7 +62,7 @@ class Articles {
                 });
             })).catch((err) => {
                 const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                throw error;
             });
         });
     }
@@ -79,8 +79,8 @@ class Articles {
                     resolve(results);
                 });
             })).catch((err) => {
-                const error = { code: err.code, failed: true, message: err.sqlMessage };
-                return error;
+                const error = { code: err.code, message: err.sqlMessage };
+                throw error;
             });
         });
     }
@@ -100,7 +100,7 @@ Articles.deleteArticle = (id) => __awaiter(void 0, void 0, void 0, function* () 
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Articles.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -117,7 +117,7 @@ Articles.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 Articles.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -134,7 +134,7 @@ Articles.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 exports.Articles = Articles;

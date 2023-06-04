@@ -4,9 +4,16 @@ import { IUser } from "../types/IUser";
 import { v4 as generateId } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import * as dotenv from "dotenv";
+import { SessionData } from "express-session";
 
-dotenv.config();
+declare module "express-session" {
+  interface SessionData {
+    token: string;
+  }
+}
+interface RequestWithUserId extends Request {
+  userId?: Record<string, any>;
+}
 
 interface ISavedUser {
   id: number;
@@ -20,6 +27,13 @@ interface DBResponse {
   message: string;
   rows: {
     affectedRows: number;
+  };
+}
+interface UserCredentials {
+  rows: {
+    id: number;
+    user_id: string;
+    password: string;
   };
 }
 
@@ -44,13 +58,12 @@ export const signup = async (
     username,
   }: IUser = req.body;
 
-  const usernameTaken = await User.findUserByUserName(username);
-  if (usernameTaken) {
-    const error = new Error("username already exist");
-    throw error;
-  }
-
   try {
+    const usernameTaken = await User.findUserByUserName(username);
+    if (usernameTaken) {
+      const error = new Error("username already exist");
+      throw error;
+    }
     const id = generateId();
     const salt = await bcrypt.genSalt(10);
     const hashedPw = await bcrypt.hash(password, salt);
@@ -71,7 +84,7 @@ export const signup = async (
     }
     res.status(200).json({ message: "user saved successfulyy" });
   } catch (error) {
-    throw error;
+    next(error);
   }
 };
 
@@ -100,15 +113,16 @@ export const login = async (
       const error = new Error("could not generate token");
       throw error;
     }
+    req.session.token = token;
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
 export const update = async (
-  req: Request,
+  req: RequestWithUserId,
   res: Response,
   next: NextFunction
 ) => {
@@ -119,15 +133,24 @@ export const update = async (
     username,
     cover_image_url,
     profile_image_url,
+    password,
   } = req.body;
   const { userId } = req.params;
 
   try {
+    if (!userId) {
+      const error = new Error("you are not logged in or session has expired");
+      throw error;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPw = await bcrypt.hash(password, salt);
     const updatedDetails = {
       last_name,
       first_name,
       email,
       username,
+      hashedPw,
       cover_image_url,
       profile_image_url,
     };
@@ -144,7 +167,7 @@ export const update = async (
 
     res.status(200).json({ message: "Updated user successfully" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -165,7 +188,7 @@ export const deleteUser = async (
 
     res.status(200).json({ message: "user deleted successdully" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -185,7 +208,7 @@ export const findAllUsers = async (
       .status(200)
       .json({ message: "found all users", response: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -205,6 +228,6 @@ export const findUser = async (
 
     res.status(200).json({ message: "found user", data: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };

@@ -1,6 +1,7 @@
 import { Articles } from "../models/articles";
 import { NextFunction, Response, Request } from "express";
 import { IArticle } from "../types/IArticle";
+import { IErrorObject } from "../types/IError";
 import { v4 as generateId } from "uuid";
 
 interface DBResponse {
@@ -43,14 +44,14 @@ export const saveArticle = async (
     const newArticle = (await article.save()) as DBResponse;
     if (newArticle.failed || newArticle.rows.affectedRows === 0) {
       console.log(newArticle);
-      const error = new Error("an error occured, could not save");
+      const error = { code: 200, message: "failed" } as IErrorObject;
       throw error;
     }
     res
       .status(200)
       .json({ message: "saved article successfully ", newArticle });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -78,7 +79,7 @@ export const updateArticle = async (
     console.log(updateResponse);
     res.status(200).json({ message: "Articles  updated", updateResponse });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -90,7 +91,7 @@ export const findAllArticles = async (
   try {
     const response = (await Articles.findAll()) as DBResponse;
     if (response.failed) {
-      const error = new Error("could not fetch articles");
+      const error = new Error();
       throw error;
     }
 
@@ -98,7 +99,7 @@ export const findAllArticles = async (
       .status(200)
       .json({ message: "found all articles", response: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -119,7 +120,7 @@ export const deleteArticle = async (
 
     res.status(200).json({ message: "Articles deleted successdully" });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
@@ -139,6 +140,6 @@ export const findArticle = async (
 
     res.status(200).json({ message: "found article", data: response.rows });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };

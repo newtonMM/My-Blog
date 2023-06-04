@@ -14,11 +14,11 @@ const category_1 = require("../models/category");
 const uuid_1 = require("uuid");
 const saveCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name } = req.body;
-    if (!name) {
-        const error = new Error(" entry cannot be empty");
-        throw error;
-    }
     try {
+        if (!name) {
+            const error = new Error(" entry cannot be empty");
+            throw error;
+        }
         console.log(req.body);
         const id = (0, uuid_1.v4)();
         const series = new category_1.Category(id, name);
@@ -33,7 +33,7 @@ const saveCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.status(200).json({ message: "saved category successfully " });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.saveCategory = saveCategory;
@@ -56,7 +56,7 @@ const updateCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         res.status(200).json({ message: "category  updated" });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.updateCategory = updateCategory;
@@ -72,7 +72,7 @@ const findAllCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             .json({ message: "found all users", response: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findAllCategories = findAllCategories;
@@ -88,7 +88,7 @@ const deleteCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         res.status(200).json({ message: "category deleted successdully" });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.deleteCategory = deleteCategory;
@@ -103,7 +103,7 @@ const findCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.status(200).json({ message: "found category", data: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findCategory = findCategory;

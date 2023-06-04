@@ -14,11 +14,11 @@ const series_1 = require("../models/series");
 const uuid_1 = require("uuid");
 const saveSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, description } = req.body;
-    if (!name || !description) {
-        const error = new Error(" entry cannot be empty");
-        throw error;
-    }
     try {
+        if (!name || !description) {
+            const error = new Error(" entry cannot be empty");
+            throw error;
+        }
         const id = (0, uuid_1.v4)();
         const series = new series_1.Series(id, name, description);
         const newSeries = (yield series.save());
@@ -30,7 +30,7 @@ const saveSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         res.status(200).json({ message: "saved series successfully " });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.saveSeries = saveSeries;
@@ -53,7 +53,7 @@ const updateSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.status(200).json({ message: "series  updated" });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.updateSeries = updateSeries;
@@ -69,7 +69,7 @@ const findAllSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             .json({ message: "found all users", response: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findAllSeries = findAllSeries;
@@ -85,7 +85,7 @@ const deleteSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         res.status(200).json({ message: "series deleted successdully" });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.deleteSeries = deleteSeries;
@@ -100,7 +100,7 @@ const findSeries = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         res.status(200).json({ message: "found series", data: response.rows });
     }
     catch (error) {
-        console.log(error);
+        next(error);
     }
 });
 exports.findSeries = findSeries;

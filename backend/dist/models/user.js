@@ -82,8 +82,9 @@ class User {
                         });
                     });
                 });
-            })).catch((error) => {
-                console.log("this is the error from catch", error);
+            })).catch((err) => {
+                const error = { code: err.code, failed: true, message: err.sqlMessage };
+                throw error;
             });
         });
     }
@@ -100,10 +101,29 @@ class User {
             });
         });
     }
+    static findUserCredentials(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = `SELECT * FROM user_credentials WHERE user_id="${id}"`;
+            var values;
+            return new Promise((resolve, reject) => {
+                console.log(query);
+                db_config_1.default.query(query, values, (err, results) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(results);
+                });
+            }).catch((err) => {
+                const error = { code: err.code, failed: true, message: err.sqlMessage };
+                throw error;
+            });
+        });
+    }
 }
 _a = User;
 User.updateUserDetails = (userDetails, id) => __awaiter(void 0, void 0, void 0, function* () {
-    const { first_name, last_name, email, username, cover_image_url, profile_image_url, } = userDetails;
+    const { first_name, last_name, email, username, hashedPw, cover_image_url, profile_image_url, } = userDetails;
     var query;
     var values;
     if (cover_image_url === undefined && profile_image_url === undefined) {
@@ -128,18 +148,47 @@ User.updateUserDetails = (userDetails, id) => __awaiter(void 0, void 0, void 0, 
             cover_image_url,
         ];
     }
+    var credentialsQuery = `UPDATE user_credentials SET username = ?, password = ? `;
     return new Promise((resolve, reject) => {
-        console.log(query);
-        db_config_1.default.query(query, values, (err, results) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve(results);
+        db_config_1.default.db.getConnection((err, connection) => {
+            connection.beginTransaction((err) => {
+                if (err) {
+                    reject(err);
+                }
+                connection.query(query, values, (error, results, fields) => {
+                    if (error) {
+                        connection.rollback(() => {
+                            console.log("Transaction rollbacked on profile details !!!!");
+                            connection.release();
+                            reject(error);
+                        });
+                    }
+                    connection.query(credentialsQuery, [username, hashedPw], (error, results, fields) => {
+                        if (error) {
+                            connection.rollback(() => {
+                                console.log("Transaction rollbacked on credentials update !!!!");
+                                connection.release();
+                                reject(error);
+                            });
+                        }
+                        connection.commit((error) => {
+                            if (error) {
+                                connection.rollback(() => {
+                                    console.log("Transaction rollbacked !!!!");
+                                    connection.release();
+                                    reject(error);
+                                });
+                            }
+                            connection.release();
+                            resolve({ message: "user updated ok " });
+                        });
+                    });
+                });
+            });
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 User.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
@@ -156,7 +205,7 @@ User.findAll = () => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 User.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -173,7 +222,7 @@ User.findByID = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 User.deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -190,7 +239,7 @@ User.deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }).catch((err) => {
         const error = { code: err.code, failed: true, message: err.sqlMessage };
-        return error;
+        throw error;
     });
 });
 exports.User = User;
